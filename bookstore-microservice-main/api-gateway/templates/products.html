@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="page-title">🛍️ Cửa hàng - Tất cả sản phẩm</h1>
+
+<div class="card">
+    <h2>Lọc theo loại sản phẩm</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+        {% for type_value, type_label in product_types %}
+            {% if type_value == selected_type %}
+                <a href="/products/" class="btn btn-primary btn-sm" data-type="{{ type_value }}">{{ type_label }} ✓</a>
+            {% else %}
+                <a href="/products/?type={{ type_value }}" class="btn btn-secondary btn-sm">{{ type_label }}</a>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+<div class="card">
+    <h2>Danh sách sản phẩm</h2>
+    <form method="GET" class="form-row" style="margin-bottom:16px;">
+        <input type="hidden" name="type" value="{{ selected_type }}">
+        <input type="text" name="search" placeholder="Tìm kiếm sản phẩm..." value="{{ products_pagination.search }}">
+        <input type="number" name="page_size" min="1" max="200" value="{{ products_pagination.page_size }}" style="max-width:140px;">
+        <button type="submit" class="btn btn-secondary">Tìm</button>
+    </form>
+    
+    {% if products %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên</th>
+                    <th>Loại sản phẩm</th>
+                    <th>Giá gốc</th>
+                    <th>Giá bán</th>
+                    <th>Tồn kho</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for product in products %}
+            <tr>
+                <td><span class="badge">{{ product.id }}</span></td>
+                <td><strong><a href="/products/{{ product.id }}/" style="color:inherit;text-decoration:underline;">{{ product.title }}</a></strong></td>
+                <td><span class="badge">{{ product.product_type|default:"book" }}</span></td>
+                <td>{{ product.list_price }} ₫</td>
+                <td>{{ product.sale_price }} ₫</td>
+                <td>{{ product.stock }}</td>
+                <td>
+                    <span class="badge {% if product.status == 'active' %}badge-success{% elif product.status == 'out_of_stock' %}badge-warning{% else %}badge-danger{% endif %}">
+                        {% if product.status == 'active' %}Có sẵn{% elif product.status == 'out_of_stock' %}Hết hàng{% else %}Ngừng kinh doanh{% endif %}
+                    </span>
+                </td>
+                <td>
+                    <a href="/products/{{ product.id }}/" class="btn btn-primary btn-sm">Xem chi tiết</a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="page-actions" style="justify-content:space-between;align-items:center;">
+        <span style="color:var(--text-secondary);font-size:0.9rem;">
+            Trang {{ products_pagination.page }}/{{ products_pagination.total_pages }} • Tổng {{ products_pagination.count }} sản phẩm
+        </span>
+        <div style="display:flex;gap:8px;">
+            {% if products_pagination.prev_page %}
+            <a class="btn btn-secondary btn-sm" href="{{ products_pagination.query_for_prev }}&type={{ selected_type }}">← Trang trước</a>
+            {% endif %}
+            {% if products_pagination.next_page %}
+            <a class="btn btn-primary btn-sm" href="{{ products_pagination.query_for_next }}&type={{ selected_type }}">Trang sau →</a>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <p class="empty">Chưa có sản phẩm loại này.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -16,6 +16,8 @@ CREATE TABLE IF NOT EXISTS books (
     list_price       NUMERIC(10, 2)  NOT NULL,
     sale_price       NUMERIC(10, 2)  NOT NULL,
     stock            INTEGER         NOT NULL DEFAULT 0,
+    product_type     VARCHAR(50)     NOT NULL DEFAULT 'book'
+                       CHECK (product_type IN ('book','electronics','audio','software','furniture','sports','toys','fashion','home','gardening','health')),
     status           VARCHAR(20)     NOT NULL DEFAULT 'active'
                        CHECK (status IN ('active','inactive','out_of_stock')),
     created_date     TIMESTAMPTZ     NOT NULL DEFAULT NOW(),

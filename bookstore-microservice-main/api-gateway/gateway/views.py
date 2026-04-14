@@ -340,6 +340,102 @@ def book_delete(request, book_id):
     return redirect("book_list")
 
 
+# ── Products (Multi-type products from book-service) ─────────────────────────
+
+def product_list(request):
+    """Browse all products (books, electronics, audio, etc.) by type."""
+    from django.conf import settings
+    
+    role = _role(request)
+    product_type = request.GET.get("type", "")  # Filter by product type
+    params = _list_query_params(request)
+    
+    # Get service URL based on product_type
+    if product_type and product_type in settings.PRODUCT_TYPE_SERVICE_MAP:
+        service_key = settings.PRODUCT_TYPE_SERVICE_MAP[product_type]
+        service_url = SVC.get(service_key, SVC['book'])
+        products_payload = _get(f"{service_url}/books/", request, params=params)
+    elif product_type:
+        # Invalid type - default to book service
+        products_payload = _get(f"{SVC['book']}/books/", request, params=params)
+    else:
+        # No type specified - get from book service (which has the mixed data)
+        products_payload = _get(f"{SVC['book']}/books/", request, params=params)
+    
+    products_pagination = _pagination_context(products_payload, request, extra_query={"type": product_type} if product_type else {})
+    
+    # Define product types for navigation
+    product_types = [
+        ("", "Tất cả sản phẩm"),
+        ("book", "📚 Sách"),
+        ("electronics", "💻 Điện tử"),
+        ("audio", "🎵 Âm thanh"),
+        ("software", "⚙️ Phần mềm"),
+        ("furniture", "🛋️ Nội thất"),
+        ("sports", "🏃 Thể thao"),
+        ("toys", "🎮 Đồ chơi"),
+        ("fashion", "👕 Thời trang"),
+        ("home", "🏠 Nhà cửa"),
+        ("gardening", "🌱 Làm vườn"),
+        ("health", "💊 Sức khỏe"),
+    ]
+    
+    return render(request, "products.html", {
+        "products": _list_data(products_payload),
+        "products_pagination": products_pagination,
+        "product_types": product_types,
+        "selected_type": product_type,
+        "can_manage": role in ("staff", "manager"),
+    })
+
+
+def product_detail(request, product_id):
+    """View product detail by ID."""
+    from django.conf import settings
+    
+    role = _role(request)
+    customer_id = _entity_id(request) if role == "customer" else None
+    product_type = request.GET.get("type", "")
+    
+    # Get service URL based on product_type
+    if product_type and product_type in settings.PRODUCT_TYPE_SERVICE_MAP:
+        service_key = settings.PRODUCT_TYPE_SERVICE_MAP[product_type]
+        service_url = SVC.get(service_key, SVC['book'])
+        product = _get(f"{service_url}/books/{product_id}/", request)
+    else:
+        # Default to book service
+        product = _get(f"{SVC['book']}/books/{product_id}/", request)
+    
+    if not isinstance(product, dict) or not product.get("id"):
+        return render(request, "403.html", {"message": "Không tìm thấy sản phẩm."}, status=404)
+
+    error = None
+    if request.method == "POST":
+        if customer_id is None:
+            return redirect("login")
+        quantity = int(request.POST.get("quantity", 1))
+        r = _post(
+            f"{SVC['cart']}/carts/{customer_id}/items/",
+            json={"book_id": int(product_id), "quantity": quantity},
+            request=request,
+        )
+        if r and r.status_code == 201:
+            _track_behavior_event(request, customer_id, product_id, "cart_add")
+            return redirect("view_cart", customer_id=customer_id)
+        error = r.json() if r else "cart-service unavailable"
+
+    if customer_id is not None:
+        _track_behavior_event(request, customer_id, product_id, "click")
+        _track_behavior_event(request, customer_id, product_id, "view")
+
+    return render(request, "product_detail.html", {
+        "product": product,
+        "is_customer": role == "customer",
+        "customer_id": customer_id,
+        "error": error,
+    })
+
+
 # ── Customers ─────────────────────────────────────────────────────────────────
 
 @require_roles("staff", "manager")

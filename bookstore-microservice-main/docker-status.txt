@@ -1,0 +1,26 @@
+﻿Docker Container Status:
+==================================================
+docker : unknown flag: --no-header
+At line:1 char:1
++ docker ps --no-header --format "table {{.Names}}\t{{.Status}}" 2>&1 | ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (unknown flag: --no-header:String) 
+    [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+Usage:  docker ps [OPTIONS]
+
+Run 'docker ps --help' for more information
+
+
+Testing API Endpoints:
+==================================================
+
+http://localhost:8000/ : Connection failed
+
+http://localhost:8002/books/ : Connection failed
+
+http://localhost:8102/books/ : Connection failed
+
+http://localhost:8103/books/ : Connection failed

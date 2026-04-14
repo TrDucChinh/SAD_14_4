@@ -15,6 +15,10 @@ urlpatterns = [
     path("books/<int:book_id>/",           views.book_detail,  name="book_detail"),
     path("books/<int:book_id>/delete/",    views.book_delete,  name="book_delete"),
 
+    # ── Products (Multi-type shop) ─────────────────────────────────────────────
+    path("products/",                      views.product_list, name="product_list"),
+    path("products/<int:product_id>/",     views.product_detail, name="product_detail"),
+
     # ── Customers ──────────────────────────────────────────────────────────────
     path("customers/",     views.customer_list, name="customer_list"),
 

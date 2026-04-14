@@ -61,6 +61,16 @@ JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "bookstore-jwt-secret-dev")
 SERVICE_URLS = {
     "customer":    os.environ.get("CUSTOMER_SERVICE_URL",    "http://customer-service:8000"),
     "book":        os.environ.get("BOOK_SERVICE_URL",        "http://book-service:8000"),
+    "electronics": os.environ.get("ELECTRONICS_SERVICE_URL", "http://electronics-service:8000"),
+    "audio":       os.environ.get("AUDIO_SERVICE_URL",       "http://audio-service:8000"),
+    "software":    os.environ.get("SOFTWARE_SERVICE_URL",    "http://software-service:8000"),
+    "furniture":   os.environ.get("FURNITURE_SERVICE_URL",   "http://furniture-service:8000"),
+    "sports":      os.environ.get("SPORTS_SERVICE_URL",      "http://sports-service:8000"),
+    "toys":        os.environ.get("TOYS_SERVICE_URL",        "http://toys-service:8000"),
+    "fashion":     os.environ.get("FASHION_SERVICE_URL",     "http://fashion-service:8000"),
+    "home":        os.environ.get("HOME_SERVICE_URL",        "http://home-service:8000"),
+    "gardening":   os.environ.get("GARDENING_SERVICE_URL",   "http://gardening-service:8000"),
+    "health":      os.environ.get("HEALTH_SERVICE_URL",      "http://health-service:8000"),
     "catalog":     os.environ.get("CATALOG_SERVICE_URL",     "http://catalog-service:8000"),
     "cart":        os.environ.get("CART_SERVICE_URL",        "http://cart-service:8000"),
     "order":       os.environ.get("ORDER_SERVICE_URL",       "http://order-service:8000"),
@@ -70,4 +80,19 @@ SERVICE_URLS = {
     "recommender": os.environ.get("RECOMMENDER_URL",         "http://recommender-ai-service:8000"),
     "staff":       os.environ.get("STAFF_SERVICE_URL",       "http://staff-service:8000"),
     "manager":     os.environ.get("MANAGER_SERVICE_URL",     "http://manager-service:8000"),
+}
+
+# Map product_type to service key for routing
+PRODUCT_TYPE_SERVICE_MAP = {
+    "book":       "book",
+    "electronics": "electronics",
+    "audio":       "audio",
+    "software":    "software",
+    "furniture":   "furniture",
+    "sports":      "sports",
+    "toys":        "toys",
+    "fashion":     "fashion",
+    "home":        "home",
+    "gardening":   "gardening",
+    "health":      "health",
 }
