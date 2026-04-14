@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="page-title">👥 Khách hàng</h1>
+
+<div class="card">
+    <h2 class="card-header-icon">➕ Thêm khách hàng</h2>
+    <p class="card-note">Dành cho nhân viên / quản lý. Khách tự đăng ký qua trang Đăng ký sẽ có giỏ hàng tự tạo.</p>
+    {% if error %}<div class="alert-error">{{ error }}</div>{% endif %}
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-grid">
+            <div>
+                <label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:6px;color:var(--text-secondary);">Tên đăng nhập</label>
+                <input type="text" name="username" placeholder="Tên đăng nhập" required>
+            </div>
+            <div>
+                <label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:6px;color:var(--text-secondary);">Email</label>
+                <input type="email" name="email" placeholder="email@example.com" required>
+            </div>
+            <div>
+                <label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:6px;color:var(--text-secondary);">Mật khẩu</label>
+                <input type="password" name="password" placeholder="Mật khẩu" required>
+            </div>
+            <div>
+                <label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:6px;color:var(--text-secondary);">Số điện thoại</label>
+                <input type="text" name="phone" placeholder="+84 ...">
+            </div>
+            <div style="align-self:end;">
+                <button type="submit" class="btn btn-success">Thêm khách hàng</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <h2>Danh sách khách hàng</h2>
+    <form method="GET" class="form-row" style="margin-bottom:16px;">
+        <input type="text" name="search" placeholder="Tìm kiếm theo tên, email, điện thoại..." value="{{ customers_pagination.search }}">
+        <input type="number" name="page_size" min="1" max="200" value="{{ customers_pagination.page_size }}" style="max-width:140px;">
+        <button type="submit" class="btn btn-secondary">Tìm</button>
+    </form>
+    {% if customers %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên đăng nhập</th>
+                    <th>Email</th>
+                    <th>Điện thoại</th>
+                    <th>Điểm thưởng</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for c in customers %}
+            <tr>
+                <td><span class="badge">{{ c.id }}</span></td>
+                <td><strong>{{ c.user.username }}</strong></td>
+                <td>{{ c.user.email }}</td>
+                <td>{{ c.user.phone|default:"—" }}</td>
+                <td>{{ c.loyalty_points }}</td>
+                <td style="white-space:nowrap;">
+                    <a href="/cart/{{ c.id }}/" class="btn btn-primary btn-sm">Giỏ hàng</a>
+                    <a href="/orders/customer/{{ c.id }}/" class="btn btn-secondary btn-sm">Đơn hàng</a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="page-actions" style="justify-content:space-between;align-items:center;">
+        <span style="color:var(--text-secondary);font-size:0.9rem;">
+            Trang {{ customers_pagination.page }}/{{ customers_pagination.total_pages }} • Tổng {{ customers_pagination.count }} khách hàng
+        </span>
+        <div style="display:flex;gap:8px;">
+            {% if customers_pagination.prev_page %}
+            <a class="btn btn-secondary btn-sm" href="{{ customers_pagination.query_for_prev }}">← Trang trước</a>
+            {% endif %}
+            {% if customers_pagination.next_page %}
+            <a class="btn btn-primary btn-sm" href="{{ customers_pagination.query_for_next }}">Trang sau →</a>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <p class="empty">Chưa có khách hàng.</p>
+    {% endif %}
+</div>
+{% endblock %}
